@@ -66,10 +66,10 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
     i2pd->SetLookupTable(quant->GetLookupTable());
     i2pd->SetColorModeToLUT();
     i2pd->SetOutputStyleToPolygonalize();
-//    i2pd->SetError(0);
-//    i2pd->DecimationOn();
-//    i2pd->SetDecimationError(0.0);
-//    i2pd->SetSubImageSize(25);
+    i2pd->SetError(0);
+    i2pd->DecimationOn();
+    i2pd->SetDecimationError(0.0);
+    i2pd->SetSubImageSize(5);
 
     
     vtkSmartPointer<vtkTriangleFilter> tfa =
@@ -88,6 +88,15 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
     vtkSmartPointer<vtkCleanPolyData> oC2 = vtkSmartPointer<vtkCleanPolyData>::New();
     oC2->SetInputData( oCon->GetOutput() );
     oC2->Update();
+    
+    vtkSmartPointer<vtkPolyData> clean = vtkSmartPointer<vtkPolyData>::New();
+    
+    for (int i = 0; i < clean->GetNumberOfCells(); i++) {
+        vtkTriangle *cel = vtkTriangle::SafeDownCast(clean->GetCell(i));
+        if (true) {
+            
+        }
+    }
     
         sMesh->DeepCopy(oC2->GetOutput());
     
