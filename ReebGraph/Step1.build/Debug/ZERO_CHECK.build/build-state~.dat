@@ -1,0 +1,29 @@
+TZERO_CHECK
+v6
+r1
+cCheck dependencies
+cPhaseScriptExecution CMake\ Rules /Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.sh
+
+N/Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.sh
+c000000005315FC23000000000000009F
+t1393949731
+s159
+
+CCheck dependencies
+r0
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies18"Check dependencies446a8ea333c6b841^fc378fa333c6b841^---0#1#1#--18"Check dependencies36"484DE059-C678-4C8B-8E97-3C908127C2D7-
+
+CPhaseScriptExecution CMake\ Rules /Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.sh
+s415642531.560742
+e415642531.649516
+r1
+xPhaseScriptExecution
+xCMake Rules
+x/Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.sh
+oecho ""
+o
+omake -f /Users/sjr/dev/ReebGraph/ReebGraph/CMakeScripts/ReRunCMake.make
+omake[1]: `/Users/sjr/dev/ReebGraph/ReebGraph/CMakeFiles/cmake.check_cache' is up to date.
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection37"Run custom shell script 'CMake Rules'103"PhaseScriptExecution CMake\ Rules Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.shaf4090a333c6b841^ba4ba6a333c6b841^-171"echo ""make -f /Users/sjr/dev/ReebGraph/ReebGraph/CMakeScripts/ReRunCMake.makemake[1]: `/Users/sjr/dev/ReebGraph/ReebGraph/CMakeFiles/cmake.check_cache' is up to date.3(21%IDEActivityLogMessage2@8"echo ""-415642531#0#8#-0#-----2@72"make -f /Users/sjr/dev/ReebGraph/ReebGraph/CMakeScripts/ReRunCMake.make-415642531#9#72#-0#-----2@90"make[1]: `/Users/sjr/dev/ReebGraph/ReebGraph/CMakeFiles/cmake.check_cache' is up to date.-415642531#81#90#-0#-----0#0#1#--266"PhaseScriptExecution CMake\ Rules Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.sh    cd /Users/sjr/dev/ReebGraph/ReebGraph    /bin/sh -c /Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ZERO_CHECK.build/Script-620358C97BB44DD8A7034439.sh36"E7246106-B24A-4552-A0D8-2FDF49ADC31D-
+b3AD80F42-47FC-432A-A27B-799C0EBF6102
+
