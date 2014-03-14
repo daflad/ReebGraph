@@ -1,29 +1,0 @@
-TALL_BUILD
-v6
-r1
-cCheck dependencies
-cPhaseScriptExecution CMake\ Rules /Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh
-
-N/Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh
-c000000005315FC25000000000000009E
-t1393949733
-s158
-
-CCheck dependencies
-r0
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies18"Check dependencies9b5a6ea533c6b841^36ce6ea533c6b841^---0#1#1#--18"Check dependencies36"D9E8E957-3FBA-411F-AFC0-7BCC7D9E44C8-
-
-CPhaseScriptExecution CMake\ Rules /Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh
-s415642533.433692
-e415642533.452577
-r1
-xPhaseScriptExecution
-xCMake Rules
-x/Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh
-oecho ""
-o
-oecho Build\ all\ projects
-oBuild all projects
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection37"Run custom shell script 'CMake Rules'102"PhaseScriptExecution CMake\ Rules Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh7a516fa533c6b841^cfdc73a533c6b841^-54"echo ""echo Build\ all\ projectsBuild all projects3(21%IDEActivityLogMessage2@8"echo ""-415642533#0#8#-0#-----2@26"echo Build\ all\ projects-415642533#9#26#-0#-----2@19"Build all projects-415642533#35#19#-0#-----0#0#1#--264"PhaseScriptExecution CMake\ Rules Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh    cd /Users/sjr/dev/ReebGraph/ReebGraph    /bin/sh -c /Users/sjr/dev/ReebGraph/ReebGraph/Step1.build/Debug/ALL_BUILD.build/Script-A5EC0F934DE24DA6AF351B00.sh36"69771291-393A-41F1-9260-79428D9087FC-
-b35ECEEB0-A3D2-4F1F-B188-51838E1A2C87
-
