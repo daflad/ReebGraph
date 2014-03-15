@@ -7,6 +7,8 @@
 #include "vtkAreaContourSpectrumFilter.h"
 #include "vtkCamera.h"
 #include "vtkCleanPolyData.h"
+#include "vtkClipPolyData.h"
+#include "vtkColor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkEdgeListIterator.h"
@@ -53,7 +55,7 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
     
     vtkSmartPointer<vtkPNGReader> reader =
     vtkSmartPointer<vtkPNGReader>::New();
-    reader->SetFileName("/Users/sjr/Pictures/gun/gun_0s.png");
+    reader->SetFileName("/Users/sjr/Pictures/gun/gun_1s.png");
     
     vtkSmartPointer<vtkImageQuantizeRGBToIndex> quant =
     vtkSmartPointer<vtkImageQuantizeRGBToIndex>::New();
@@ -70,15 +72,22 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
     i2pd->DecimationOn();
     i2pd->SetDecimationError(0.0);
     i2pd->SetSubImageSize(5);
-
+    
+    vtkSmartPointer<vtkClipPolyData> clip =
+    vtkSmartPointer<vtkClipPolyData>::New();
+    clip->SetGenerateClipScalars(1);
+    clip->SetInputConnection(i2pd->GetOutputPort());
+    clip->GenerateClippedOutputOn();
+    clip->InsideOutOn();
+    clip->Update();
     
     vtkSmartPointer<vtkTriangleFilter> tfa =
     vtkSmartPointer<vtkTriangleFilter>::New();
-    tfa->SetInputConnection(i2pd->GetOutputPort());
+    tfa->SetInputConnection(clip->GetOutputPort());
     tfa->PassLinesOff();
     tfa->PassVertsOff();
     tfa->Update();
-
+    
     
     vtkSmartPointer<vtkPolyDataConnectivityFilter> oCon = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
     oCon->SetInputData( tfa->GetOutput() );
@@ -89,19 +98,9 @@ int LoadSurfaceMesh(vtkPolyData *sMesh)
     oC2->SetInputData( oCon->GetOutput() );
     oC2->Update();
     
-    vtkSmartPointer<vtkPolyData> clean = vtkSmartPointer<vtkPolyData>::New();
-    
-    for (int i = 0; i < clean->GetNumberOfCells(); i++) {
-        vtkTriangle *cel = vtkTriangle::SafeDownCast(clean->GetCell(i));
-        if (true) {
-            
-        }
-    }
-    
-        sMesh->DeepCopy(oC2->GetOutput());
+    sMesh->DeepCopy(oC2->GetOutput());
     
     cout << "Cells :: " << sMesh->GetNumberOfCells() << endl;
-    cout << "Cells :: " << VTK_TRIANGLE << "::" <<sMesh->GetCellType(0) << endl;
     cout << "Points :: " << sMesh->GetNumberOfPoints() << endl;
     
     return 1;
@@ -306,7 +305,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
     
     vtkPolyDataMapper *lineMapper = vtkPolyDataMapper::New();
     lineMapper->SetInputData(embeddedSkeleton);
-
+    
     vtkActor          *skeletonActor = vtkActor::New();
     
     skeletonActor->SetMapper(lineMapper);
