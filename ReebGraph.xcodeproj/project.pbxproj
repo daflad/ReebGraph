@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7733061B18D875AA005B1CCE /* ImgToMesh.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 7733061918D875AA005B1CCE /* ImgToMesh.cxx */; };
 		774FA61A18CF32EF00803790 /* main.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 774FA61918CF32EF00803790 /* main.cxx */; };
 		776E0EEF18C6270100E7BF3F /* ReebGraph.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 776E0EEE18C6270100E7BF3F /* ReebGraph.1 */; };
 		77C51C5E18CE5DDD00FA840F /* libvtkalglib-6.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 77C51B7A18CE5DDC00FA840F /* libvtkalglib-6.2.1.dylib */; };
@@ -139,6 +140,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7733061918D875AA005B1CCE /* ImgToMesh.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImgToMesh.cxx; sourceTree = "<group>"; };
+		7733061A18D875AA005B1CCE /* ImgToMesh.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ImgToMesh.hpp; sourceTree = "<group>"; };
 		774FA61918CF32EF00803790 /* main.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cxx; sourceTree = "<group>"; };
 		776E0EE918C6270100E7BF3F /* ReebGraph */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ReebGraph; sourceTree = BUILT_PRODUCTS_DIR; };
 		776E0EEE18C6270100E7BF3F /* ReebGraph.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ReebGraph.1; sourceTree = "<group>"; };
@@ -519,6 +522,8 @@
 			children = (
 				774FA61918CF32EF00803790 /* main.cxx */,
 				776E0EEE18C6270100E7BF3F /* ReebGraph.1 */,
+				7733061918D875AA005B1CCE /* ImgToMesh.cxx */,
+				7733061A18D875AA005B1CCE /* ImgToMesh.hpp */,
 			);
 			path = ReebGraph;
 			sourceTree = "<group>";
@@ -810,6 +815,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				774FA61A18CF32EF00803790 /* main.cxx in Sources */,
+				7733061B18D875AA005B1CCE /* ImgToMesh.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,19 +2,27 @@
 #define vtkRenderingVolume_AUTOINIT 1(vtkRenderingVolumeOpenGL)
 
 #include <map>
+#include "ImgToMesh.hpp"
 
 #include "vtkActor.h"
 #include "vtkAreaContourSpectrumFilter.h"
 #include "vtkCamera.h"
+#include "vtkCellPicker.h"
 #include "vtkCleanPolyData.h"
 #include "vtkClipPolyData.h"
 #include "vtkColor.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDataSetMapper.h"
 #include "vtkDoubleArray.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkExtractSelection.h"
+#include "vtkVertexGlyphFilter.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
+#include "vtkImageMagnitude.h"
 #include "vtkImageToPolyDataFilter.h"
 #include "vtkImageQuantizeRGBToIndex.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLight.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
@@ -32,11 +40,15 @@
 #include "vtkReebGraphToJoinSplitTreeFilter.h"
 #include "vtkReebGraphVolumeSkeletonFilter.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
+#include "vtkThresholdPoints.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
@@ -45,67 +57,7 @@
 #include "vtkVolumeContourSpectrumFilter.h"
 #include "vtkWindowToImageFilter.h"
 
-
-
-// loading code generated automatically.
-// put whatever mesh you like here.
-int LoadSurfaceMesh(vtkPolyData *sMesh)
-{
-    sMesh->Allocate();
-    
-    vtkSmartPointer<vtkPNGReader> reader =
-    vtkSmartPointer<vtkPNGReader>::New();
-    reader->SetFileName("/Users/sjr/Pictures/gun/gun_1s.png");
-    
-    vtkSmartPointer<vtkImageQuantizeRGBToIndex> quant =
-    vtkSmartPointer<vtkImageQuantizeRGBToIndex>::New();
-    quant->SetInputConnection(reader->GetOutputPort());
-    quant->SetNumberOfColors(16);
-    
-    vtkSmartPointer<vtkImageToPolyDataFilter> i2pd =
-    vtkSmartPointer<vtkImageToPolyDataFilter>::New();
-    i2pd->SetInputConnection(quant->GetOutputPort());
-    i2pd->SetLookupTable(quant->GetLookupTable());
-    i2pd->SetColorModeToLUT();
-    i2pd->SetOutputStyleToPolygonalize();
-    i2pd->SetError(0);
-    i2pd->DecimationOn();
-    i2pd->SetDecimationError(0.0);
-    i2pd->SetSubImageSize(5);
-    
-    vtkSmartPointer<vtkClipPolyData> clip =
-    vtkSmartPointer<vtkClipPolyData>::New();
-    clip->SetGenerateClipScalars(1);
-    clip->SetInputConnection(i2pd->GetOutputPort());
-    clip->GenerateClippedOutputOn();
-    clip->InsideOutOn();
-    clip->Update();
-    
-    vtkSmartPointer<vtkTriangleFilter> tfa =
-    vtkSmartPointer<vtkTriangleFilter>::New();
-    tfa->SetInputConnection(clip->GetOutputPort());
-    tfa->PassLinesOff();
-    tfa->PassVertsOff();
-    tfa->Update();
-    
-    
-    vtkSmartPointer<vtkPolyDataConnectivityFilter> oCon = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
-    oCon->SetInputData( tfa->GetOutput() );
-    oCon->SetExtractionModeToAllRegions();
-    oCon->Update();
-    
-    vtkSmartPointer<vtkCleanPolyData> oC2 = vtkSmartPointer<vtkCleanPolyData>::New();
-    oC2->SetInputData( oCon->GetOutput() );
-    oC2->Update();
-    
-    sMesh->DeepCopy(oC2->GetOutput());
-    
-    cout << "Cells :: " << sMesh->GetNumberOfCells() << endl;
-    cout << "Points :: " << sMesh->GetNumberOfPoints() << endl;
-    
-    return 1;
-}
-
+#include <vector>
 
 class AreaSimplificationMetric : public vtkReebGraphSimplificationMetric{
 public:
@@ -313,8 +265,6 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
     skeletonActor->GetProperty()->SetLineWidth(2);
     renderer->AddActor(skeletonActor);
     
-    windowInteractor->Initialize();
-    
     // Interactive mode
     windowInteractor->Start();
     
@@ -337,6 +287,10 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
 
 int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 {
+    ImgToMesh im;
+    
+    im.init();
+    
     int errorCode;
     
     cout << endl
@@ -344,7 +298,11 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
     
     // Loading the mesh
     vtkPolyData *surfaceMesh = vtkPolyData::New();
-    LoadSurfaceMesh(surfaceMesh);
+    if (im.loadFile()) {
+        surfaceMesh->DeepCopy(im.mesh);
+    } else {
+        return EXIT_FAILURE;
+    }
     
     // Attaching a height scalar field to it
     vtkDoubleArray *surfaceScalarField = vtkDoubleArray::New();
@@ -430,6 +388,14 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
     vtkTable *surfaceSkeleton = surfaceSkeletonFilter->GetOutput();
     errorCode = DisplaySurfaceSkeleton(surfaceMesh, surfaceSkeleton);
     cout << "      Test 2D.4 ";
+    if(surfaceSkeleton->GetNumberOfColumns() > 0)
+        cout << "OK!" << endl;
+    else
+    {
+        cout << "Failed!" << endl;
+        return EXIT_FAILURE;
+    }
+    cout << "      Test 2D.4 A";
     if(surfaceSkeleton->GetNumberOfColumns() > 0)
         cout << "OK!" << endl;
     else
