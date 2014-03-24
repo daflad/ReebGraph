@@ -9,7 +9,6 @@
 #ifndef __ReebGraph__ImgToMesh__
 #define __ReebGraph__ImgToMesh__
 
-#include <iostream>
 #include "vtkActor.h"
 #include "vtkAreaContourSpectrumFilter.h"
 #include "vtkCamera.h"
@@ -37,7 +36,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataConnectivityFilter.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataReader.h"
 #include "vtkPolyDataToReebGraphFilter.h"
+#include "vtkPolyDataWriter.h"
 #include "vtkProperty.h"
 #include "vtkReebGraph.h"
 #include "vtkReebGraphSurfaceSkeletonFilter.h"

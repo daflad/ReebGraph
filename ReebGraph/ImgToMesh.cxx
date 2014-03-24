@@ -37,7 +37,15 @@ public:
         double* worldPosition = picker->GetPickPosition();
         std::cout << "Cell id is: " << picker->GetCellId() << std::endl;
         
-        if(picker->GetCellId() != -1)
+        bool found = false;
+        
+        for (int i = 0; i < cellIds.size(); i++) {
+            if (cellIds[i] == (int)picker->GetCellId()) {
+                found = true;
+            }
+        }
+        
+        if(picker->GetCellId() != -1 && !found)
         {
             cellIds.push_back((int) picker->GetCellId());
             std::cout << "Pick position is: " << worldPosition[0] << " " << worldPosition[1]
@@ -120,25 +128,36 @@ vtkStandardNewMacro(MouseInteractorStyle);
 
 bool ImgToMesh::loadFile() {
     
-    reader->SetFileName("/Users/sjr/Pictures/gun/gun_0s.png");
-    reader->Update();
-    quantizer->SetInputConnection(reader->GetOutputPort());
-    quantizer->SetNumberOfColors(2);
-    quantizer->Update();
-    img2data->SetInputConnection(quantizer->GetOutputPort());
-    img2data->SetLookupTable(quantizer->GetLookupTable());
-    img2data->SetColorModeToLUT();
-    img2data->SetSmoothing(1);
-    img2data->SetOutputStyleToPolygonalize();
-    img2data->SetError(0);
-    img2data->DecimationOn();
-    img2data->SetDecimationError(0.0);
-    img2data->SetSubImageSize(5);
-    img2data->Update();
-    mesh->DeepCopy(img2data->GetOutput());
+    vtkSmartPointer<vtkPolyDataReader> polyReader =
+    vtkSmartPointer<vtkPolyDataReader>::New();
+    polyReader->SetFileName("gun.vtk");
+    polyReader->Update();
     
+    if (reader->GetOutput())  {
+        cout << "Load from file" << endl;
+        mesh->DeepCopy(polyReader->GetOutput());
+    } else {
+        cout << "Load from image" << endl;
+        reader->SetFileName("/Users/sjr/Pictures/gun/gun_0s.png");
+        reader->Update();
+        quantizer->SetInputConnection(reader->GetOutputPort());
+        quantizer->SetNumberOfColors(2);
+        quantizer->Update();
+        img2data->SetInputConnection(quantizer->GetOutputPort());
+        img2data->SetLookupTable(quantizer->GetLookupTable());
+        img2data->SetColorModeToLUT();
+        img2data->SetSmoothing(1);
+        img2data->SetOutputStyleToPolygonalize();
+        img2data->SetError(0);
+        img2data->DecimationOn();
+        img2data->SetDecimationError(0.0);
+        img2data->SetSubImageSize(5);
+        img2data->Update();
+        mesh->DeepCopy(img2data->GetOutput());
+    }
+
     bool culled = false;
-    
+
     while (!culled) {
         displayMesh();
         
@@ -163,7 +182,9 @@ bool ImgToMesh::loadFile() {
     triangleFilter->Update();
     
     connector->SetInputConnection(triangleFilter->GetOutputPort());
-    connector->SetExtractionModeToAllRegions();
+    connector->SetExtractionModeToLargestRegion();
+    connector->ScalarConnectivityOn();
+    
     connector->Update();
     
     cleaner->SetInputConnection( connector->GetOutputPort() );
@@ -171,18 +192,29 @@ bool ImgToMesh::loadFile() {
     
     mesh->DeepCopy(cleaner->GetOutput());
     
+    vtkSmartPointer<vtkPolyDataMapper> d = vtkSmartPointer<vtkPolyDataMapper>::New();
+    
+    d->SetInputData(mesh);
+    
+    vtkSmartPointer<vtkPolyDataWriter> writer =
+    vtkSmartPointer<vtkPolyDataWriter>::New();
+    writer->SetInputData(mesh);
+    writer->SetFileName("gun.vtk");
+    writer->Update();
+    writer->Write();
+    
     displayMesh();
     
     return true;
 }
 
 void ImgToMesh::displayMesh() {
-    vtkRenderer *renderer = vtkRenderer::New();
+    vtkRenderer *renderer1 = vtkRenderer::New();
     
-    renderer->SetBackground(0.3,0.3,1);
+    renderer1->SetBackground(0.3,0.3,1);
     
     vtkRenderWindow *renderWindow = vtkRenderWindow::New();
-    renderWindow->AddRenderer(renderer);
+    renderWindow->AddRenderer(renderer1);
     renderWindow->SetSize(800, 800);
     
     vtkRenderWindowInteractor *windowInteractor =
@@ -201,13 +233,13 @@ void ImgToMesh::displayMesh() {
     windowInteractor->Initialize();
     vtkSmartPointer<MouseInteractorStyle> style =
     vtkSmartPointer<MouseInteractorStyle>::New();
-    style->SetDefaultRenderer(renderer);
+    style->SetDefaultRenderer(renderer1);
     style->Data = mesh;
     
     windowInteractor->SetInteractorStyle(style);
     
-    renderer->AddActor(actor);
-    renderer->ResetCamera();
+    renderer1->AddActor(actor);
+    renderer1->ResetCamera();
     
     windowInteractor->Start();
 }

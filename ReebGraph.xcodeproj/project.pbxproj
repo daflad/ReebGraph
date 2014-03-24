@@ -124,6 +124,8 @@
 		77C51D3C18CE5DDF00FA840F /* libvtkViewsGeovis-6.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 77C51C5818CE5DDD00FA840F /* libvtkViewsGeovis-6.2.1.dylib */; };
 		77C51D3E18CE5DDF00FA840F /* libvtkViewsInfovis-6.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 77C51C5A18CE5DDD00FA840F /* libvtkViewsInfovis-6.2.1.dylib */; };
 		77C51D4118CE5DDF00FA840F /* libvtkzlib-6.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 77C51C5D18CE5DDD00FA840F /* libvtkzlib-6.2.1.dylib */; };
+		77DB72D418DA4B4200F7602B /* ReebGrapher.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 77DB72D218DA4B4200F7602B /* ReebGrapher.cxx */; };
+		77DB72D718DA4BB900F7602B /* AreaSimplificationMetric.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 77DB72D518DA4BB900F7602B /* AreaSimplificationMetric.cxx */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -373,6 +375,10 @@
 		77C51C5B18CE5DDD00FA840F /* libvtkViewsInfovis-6.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libvtkViewsInfovis-6.2.1.dylib"; path = "../../../../usr/local/lib/libvtkViewsInfovis-6.2.1.dylib"; sourceTree = "<group>"; };
 		77C51C5C18CE5DDD00FA840F /* libvtkzlib-6.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libvtkzlib-6.2.1.dylib"; path = "../../../../usr/local/lib/libvtkzlib-6.2.1.dylib"; sourceTree = "<group>"; };
 		77C51C5D18CE5DDD00FA840F /* libvtkzlib-6.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libvtkzlib-6.2.1.dylib"; path = "../../../../usr/local/lib/libvtkzlib-6.2.1.dylib"; sourceTree = "<group>"; };
+		77DB72D218DA4B4200F7602B /* ReebGrapher.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReebGrapher.cxx; sourceTree = "<group>"; };
+		77DB72D318DA4B4200F7602B /* ReebGrapher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReebGrapher.h; sourceTree = "<group>"; };
+		77DB72D518DA4BB900F7602B /* AreaSimplificationMetric.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AreaSimplificationMetric.cxx; path = ../AreaSimplificationMetric.cxx; sourceTree = "<group>"; };
+		77DB72D618DA4BB900F7602B /* AreaSimplificationMetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AreaSimplificationMetric.h; path = ../AreaSimplificationMetric.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -524,6 +530,10 @@
 				776E0EEE18C6270100E7BF3F /* ReebGraph.1 */,
 				7733061918D875AA005B1CCE /* ImgToMesh.cxx */,
 				7733061A18D875AA005B1CCE /* ImgToMesh.hpp */,
+				77DB72D218DA4B4200F7602B /* ReebGrapher.cxx */,
+				77DB72D318DA4B4200F7602B /* ReebGrapher.h */,
+				77DB72D518DA4BB900F7602B /* AreaSimplificationMetric.cxx */,
+				77DB72D618DA4BB900F7602B /* AreaSimplificationMetric.h */,
 			);
 			path = ReebGraph;
 			sourceTree = "<group>";
@@ -815,6 +825,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				774FA61A18CF32EF00803790 /* main.cxx in Sources */,
+				77DB72D718DA4BB900F7602B /* AreaSimplificationMetric.cxx in Sources */,
+				77DB72D418DA4B4200F7602B /* ReebGrapher.cxx in Sources */,
 				7733061B18D875AA005B1CCE /* ImgToMesh.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
