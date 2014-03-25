@@ -46,11 +46,15 @@ int ReebGrapher::DisplayReebGraph(vtkReebGraph *g) {
     
     vtkDataArray *vertexInfo = vtkDataArray::SafeDownCast(g->GetVertexData()->GetAbstractArray("Vertex Ids"));
     
-    if(!vertexInfo) return 1;
+    if(!vertexInfo) {
+        return 1;
+    }
     
     vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
                                                               g->GetEdgeData()->GetAbstractArray("Vertex Ids"));
-    if(!edgeInfo) return 2;
+    if(!edgeInfo) {
+        return 2;
+    }
     
     cout << "   Reeb graph nodes:" << endl;
     for(int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
@@ -60,21 +64,22 @@ int ReebGrapher::DisplayReebGraph(vtkReebGraph *g) {
     cout << "   Reeb graph arcs:" << endl;
     vtkEdgeListIterator *eIt = vtkEdgeListIterator::New();
     g->GetEdges(eIt);
-    do{
+    
+    do {
         vtkEdgeType e = eIt->Next();
         vtkAbstractArray *deg2NodeList = edgeInfo->GetPointer(e.Id)->ToArray();
         cout << "     Arc #" << e.Id << ": "
         << *(vertexInfo->GetTuple(e.Source)) << " -> "
         << *(vertexInfo->GetTuple(e.Target)) << " ("
         << deg2NodeList->GetNumberOfTuples() << " degree-2 nodes)" << endl;
-    }while(eIt->HasNext());
+    } while(eIt->HasNext());
+    
     eIt->Delete();
     
     return 0;
 }
 
-int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
-{
+int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton) {
     
     // Rendering setting
     vtkRenderer *renderer = vtkRenderer::New();
@@ -129,8 +134,7 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     skeletonSamples->SetNumberOfPoints(
                                        skeleton->GetNumberOfColumns()*skeleton->GetNumberOfRows());
     
-    for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
-    {
+    for(int i = 0; i < skeleton->GetNumberOfColumns(); i++) {
         vtkDoubleArray *arc = vtkDoubleArray::SafeDownCast(skeleton->GetColumn(i));
         
         // critical point at the origin of the arc
@@ -150,14 +154,13 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
         
         // now add the samples to the skeleton polyData
         int initialSampleId = sampleId;
-        for(int j = 0; j < arc->GetNumberOfTuples(); j++)
-        {
+        
+        for(int j = 0; j < arc->GetNumberOfTuples(); j++) {
             arc->GetTupleValue(j, point);
             skeletonSamples->SetPoint(sampleId, point);
             sampleId++;
         }
-        for(int j = 1; j < arc->GetNumberOfTuples(); j++)
-        {
+        for(int j = 1; j < arc->GetNumberOfTuples(); j++) {
             vtkIdType samplePair[2];
             samplePair[0] = j - 1 + initialSampleId;
             samplePair[1] = j + initialSampleId;
@@ -184,8 +187,11 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     
     skeletonActor->Delete();
     lineMapper->Delete();
-    for(int i = 0; i < 2*skeleton->GetNumberOfColumns(); i++)
+    
+    for(int i = 0; i < 2*skeleton->GetNumberOfColumns(); i++) {
         nodeActors[i]->Delete();
+    }
+    
     embeddedSkeleton->Delete();
     free(nodeActors);
     sphereMapper->Delete();
@@ -195,8 +201,6 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     windowInteractor->Delete();
     renderWindow1->Delete();
     renderer->Delete();
-    
-    cout << "HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE " << endl;
     
     return 0;
 }

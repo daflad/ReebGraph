@@ -11,8 +11,7 @@
 std::vector<int> cellIds;
 
 // Catch mouse events
-class MouseInteractorStyle : public vtkInteractorStyleTrackballCamera
-{
+class MouseInteractorStyle : public vtkInteractorStyleTrackballCamera {
 public:
     static MouseInteractorStyle* New();
     
@@ -211,7 +210,7 @@ bool ImgToMesh::loadFile() {
 void ImgToMesh::displayMesh() {
     vtkRenderer *renderer1 = vtkRenderer::New();
     
-    renderer1->SetBackground(0.3,0.3,1);
+    renderer1->SetBackground(0.1,0.3,0.7);
     
     vtkRenderWindow *renderWindow = vtkRenderWindow::New();
     renderWindow->AddRenderer(renderer1);
