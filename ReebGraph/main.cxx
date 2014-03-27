@@ -3,12 +3,17 @@
 
 #include <map>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
 #include "ImgToMesh.hpp"
 #include "AreaSimplificationMetric.h"
 #include "ReebGrapher.h"
 #include "vtkDijkstraGraphGeodesicPath.h"
 
 vtkStandardNewMacro(AreaSimplificationMetric);
+
+bool loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField, double max, double min);
 
 int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     ImgToMesh im;
@@ -36,12 +41,11 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     double max = 0;
     double min = 1000000;
     
-    vector<vector<double>> distLUT;
-    
-    for(vtkIdType i = 0; i < surfaceMesh->GetNumberOfPoints(); i++) {
-        cout << "Val :: " << surfaceScalarField->GetTuple(i)[0] << endl;
-//        if (surfaceScalarField->GetTuple(i)[0] == 0) {
+    if (!loadDistancesFromFile("gun_dist.txt", surfaceScalarField, max, min)) {
+        vector<vector<double>> distLUT;
         
+        for(vtkIdType i = 0; i < surfaceMesh->GetNumberOfPoints(); i++) {
+            
             vector<double> dist;
             
             for(vtkIdType j = 0; j < surfaceMesh->GetNumberOfPoints(); j++) {
@@ -71,7 +75,13 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
                         free(pA);
                         free(pB);
                     }
-
+                    
+                }
+                if (d > max) {
+                    max = d;
+                }
+                if (d < min) {
+                    min = d;
                 }
                 dist.push_back(d);
             }
@@ -83,8 +93,11 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
             avgDist /= dist.size();
             surfaceScalarField->SetTuple1(i, avgDist);
             cout << "Done :: " << i << " Val :: " << surfaceScalarField->GetTuple(i)[0] << endl;;
-//        }
+            
+        }
     }
+    
+    
     surfaceMesh->GetPointData()->SetScalars(surfaceScalarField);
     
     vtkSmartPointer<vtkPolyDataWriter> writer =
@@ -187,5 +200,34 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     surfaceMesh->Delete();
     
     return 0;
+}
+
+
+bool loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField, double max, double min) {
+    string line;
+    ifstream myfile ("gun_dist.txt");
+    if (myfile.is_open())
+    {
+        int i = 0;
+        while ( getline (myfile,line) )
+        {
+            cout << line << '\n';
+            double v = atof(line.c_str());
+            surfaceScalarField->SetTuple1(i++, v);
+            if (v > max) {
+                max = v;
+            }
+            if (v < min) {
+                min = v;
+            }
+        }
+        
+        myfile.close();
+        return true;
+    } else {
+        cout << "Unable to open file";
+        return false;
+    }
+    
 }
 
