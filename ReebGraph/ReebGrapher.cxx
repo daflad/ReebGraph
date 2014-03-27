@@ -97,7 +97,7 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     
     vtkActor *surfaceActor = vtkActor::New();
     surfaceActor->SetMapper(surfaceMapper);
-    surfaceActor->GetProperty()->SetOpacity(0.4);
+    surfaceActor->GetProperty()->SetOpacity(0.3);
     
     vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

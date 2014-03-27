@@ -181,7 +181,7 @@ bool ImgToMesh::loadFile() {
     triangleFilter->Update();
     
     connector->SetInputConnection(triangleFilter->GetOutputPort());
-    connector->SetExtractionModeToLargestRegion();
+    connector->SetExtractionModeToAllRegions();
     connector->ScalarConnectivityOn();
     
     connector->Update();
@@ -210,7 +210,7 @@ bool ImgToMesh::loadFile() {
 void ImgToMesh::displayMesh() {
     vtkRenderer *renderer1 = vtkRenderer::New();
     
-    renderer1->SetBackground(0.1,0.3,0.7);
+    renderer1->SetBackground(0.3,0.3,0.3);
     
     vtkRenderWindow *renderWindow = vtkRenderWindow::New();
     renderWindow->AddRenderer(renderer1);
@@ -228,6 +228,7 @@ void ImgToMesh::displayMesh() {
     vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
     actor->GetProperty()->SetRepresentationToWireframe();
+    actor->GetProperty()->SetColor(1, 1, 1);
     
     windowInteractor->Initialize();
     vtkSmartPointer<MouseInteractorStyle> style =

@@ -24,7 +24,7 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
     double  fieldLowerBound = scalarField->GetComponent(startCriticalPoint,0);
     double  fieldUpperBound = scalarField->GetComponent(endCriticalPoint,0);
     
-    double  cumulativeArea  = 0;
+    double  cumulativeArea  = 0.5;
     
     std::map<vtkIdType, bool> visitedTriangles;
     
@@ -35,7 +35,7 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
         
         mesh->GetPointCells(vId, starTriangleList);
         
-        for(int j = 0; j < starTriangleList->GetNumberOfIds(); j++) {
+        for(int j = 0; j < starTriangleList->GetNumberOfIds()-1; j++) {
             
             vtkIdType tId = starTriangleList->GetId(j);
             
@@ -60,20 +60,20 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
                        && (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0)
                           >= fieldLowerBound)) {
                            
-                        // the triangle fully maps inside the arc function interval
-                        cumulativeArea += t->ComputeArea();
-                    }
+                           // the triangle fully maps inside the arc function interval
+                           cumulativeArea = (scalarField->GetComponent(t->GetPointIds()->GetId(0), 0)
+                           + scalarField->GetComponent(t->GetPointIds()->GetId(1), 0)
+                           + scalarField->GetComponent(t->GetPointIds()->GetId(2), 0) ) / 3;
+                       }
+                    
                     visitedTriangles[tId] = true;
                 }
             }
         }
-        
-        starTriangleList->Delete();
     }
     
-    double c = 1 - ( cumulativeArea/(this->UpperBound - this->LowerBound));
-    cout << "Eveluated :: " << c << endl;
+    cout << "Eveluated :: " << cumulativeArea << endl;
     
-    return c;
+    return cumulativeArea;
     
 }
