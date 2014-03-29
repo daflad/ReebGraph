@@ -13,7 +13,11 @@
 
 vtkStandardNewMacro(AreaSimplificationMetric);
 
-bool loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField, double max, double min);
+double ma = 0;
+double mi = 250;
+
+double  loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField);
+void    saveDistancesToFile(string fn, vtkDoubleArray *surfaceScalarField);
 
 int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     ImgToMesh im;
@@ -38,65 +42,100 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     vtkDoubleArray *surfaceScalarField = vtkDoubleArray::New();
     surfaceScalarField->SetNumberOfTuples(surfaceMesh->GetNumberOfPoints());
     
-    double max = 0;
-    double min = 1000000;
+    double aMax = loadDistancesFromFile("gun_dist.txt", surfaceScalarField);
+    double aMin = 10000;
     
-    if (!loadDistancesFromFile("gun_dist.txt", surfaceScalarField, max, min)) {
-        vector<vector<double>> distLUT;
+    long np = surfaceMesh->GetNumberOfPoints();
+    
+    if (aMax == -1) {
         
-        for(vtkIdType i = 0; i < surfaceMesh->GetNumberOfPoints(); i++) {
-            
+        vector<vector<double>> distLUT;
+        vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra =
+        vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();
+        dijkstra->SetInputData(surfaceMesh);
+        vector<double> avg;
+        for(vtkIdType i = 0; i < np; i++) {
+
             vector<double> dist;
-            
-            for(vtkIdType j = 0; j < surfaceMesh->GetNumberOfPoints(); j++) {
+            double avgDist = 0;
+            for(vtkIdType j = 0; j < np; j++) {
                 double d = 0;
                 if (j < distLUT.size() && i < distLUT[j].size()) {
                     d = distLUT[j][i];
                 } else {
-                    vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra =
-                    vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();
-                    dijkstra->SetInputData(surfaceMesh);
+
                     dijkstra->SetStartVertex(i);
                     dijkstra->SetEndVertex(j);
                     dijkstra->Update();
                     vtkIdList *l = dijkstra->GetIdList();
-                    
+
                     for (int k = 1; k < l->GetNumberOfIds(); k++) {
-                        l->GetId(k);
+                        vtkIdType idA = l->GetId(k - 1);
+                        vtkIdType idB = l->GetId(k);
                         double *pA = (double *) malloc(sizeof(double)*3);
                         double *pB = (double *) malloc(sizeof(double)*3);
-                        surfaceMesh->GetPoint(k - 1, pA);
-                        surfaceMesh->GetPoint(k, pB);
+                        surfaceMesh->GetPoint(idA, pA);
+                        surfaceMesh->GetPoint(idB, pB);
                         // Find the squared distance between the points.
                         double squaredDistance = vtkMath::Distance2BetweenPoints(pA, pB);
-                        
+
                         // Take the square root to get the Euclidean distance between the points.
                         d += sqrt(squaredDistance);
                         free(pA);
                         free(pB);
                     }
-                    
+
                 }
-                if (d > max) {
-                    max = d;
+                if (d > ma) {
+                    ma = d;
                 }
-                if (d < min) {
-                    min = d;
+                if (d < mi) {
+                    mi = d;
                 }
+                avgDist += d;
                 dist.push_back(d);
             }
             distLUT.push_back(dist);
-            double avgDist = 0;
-            for (int j = 0; j < dist.size(); j++) {
-                avgDist += dist[j];
+            avgDist /= (double)np;
+            if (avgDist > aMax) {
+                aMax = avgDist;
             }
-            avgDist /= dist.size();
-            surfaceScalarField->SetTuple1(i, avgDist);
-            cout << "Done :: " << i << " Val :: " << surfaceScalarField->GetTuple(i)[0] << endl;;
-            
+            if (avgDist < aMin) {
+                aMin = avgDist;
+            }
+            avg.push_back(avgDist);
+            cout << "Done :: " << i << "/" << np << " ~ " << avgDist << endl;
         }
+        for (int i = 0; i < np; i++) {
+            surfaceScalarField->SetTuple1(i, avg[i]/aMax);
+        }
+        double mMax = 0;
+        vector<double> sv;
+        vtkDoubleArray *surfaceScalarField = vtkDoubleArray::New();
+        surfaceScalarField->SetNumberOfTuples(surfaceMesh->GetNumberOfPoints());
+        for(vtkIdType vId = 0; vId < surfaceMesh->GetNumberOfPoints(); vId++) {
+            double *p = (double *) malloc(sizeof(double)*3);
+            surfaceMesh->GetPoint(vId, p);
+            double scalarValue = p[1];
+            
+            if (scalarValue > mMax) {
+                mMax = scalarValue;
+            }
+            
+            sv.push_back(scalarValue);
+            // add a bit of noise for the split tree test
+            //if(vId == 2) scalarValue -= 10*scalarValue;
+            //scalarValue = ((scalarValue/131) + (avg[vId]/max))/2;
+            
+            free(p);
+        }
+        for (int i = 0; i < sv.size(); i++) {
+            surfaceScalarField->SetTuple1(i, sv[i]/mMax);
+        }
+        surfaceMesh->GetPointData()->SetScalars(surfaceScalarField);
+        
+        saveDistancesToFile("gun_dist.txt", surfaceScalarField);
     }
-    
     
     surfaceMesh->GetPointData()->SetScalars(surfaceScalarField);
     
@@ -128,12 +167,13 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     vtkReebGraphSimplificationFilter::New();
     
     AreaSimplificationMetric *metric = AreaSimplificationMetric::New();
-    metric->SetLowerBound(min);
-    metric->SetUpperBound(max);
+    cout << "Max :: " << ma << " Min :: " << mi << endl;
+    metric->SetLowerBound(mi);
+    metric->SetUpperBound(ma);
     surfaceSimplification->SetSimplificationMetric(metric);
     
     surfaceSimplification->SetInputData(surfaceReebGraph);
-    //surfaceSimplification->SetSimplificationThreshold(0.4);
+    surfaceSimplification->SetSimplificationThreshold(0.01);
     surfaceSimplification->Update();
     vtkReebGraph *simplifiedSurfaceReebGraph = surfaceSimplification->GetOutput();
     metric->Delete();
@@ -203,31 +243,51 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
 }
 
 
-bool loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField, double max, double min) {
+double loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField) {
+    double max = 0;
     string line;
-    ifstream myfile ("gun_dist.txt");
+    ifstream myfile (fn);
     if (myfile.is_open())
     {
         int i = 0;
+        int c = 0;
         while ( getline (myfile,line) )
         {
-            cout << line << '\n';
-            double v = atof(line.c_str());
-            surfaceScalarField->SetTuple1(i++, v);
-            if (v > max) {
-                max = v;
+            if (c == 0) {
+                ma = atof(line.c_str());
+                
             }
-            if (v < min) {
-                min = v;
+            if (c == 1) {
+                mi = atof(line.c_str());
+                
             }
+            if (c > 1) {
+                double v = atof(line.c_str());
+                surfaceScalarField->SetTuple1(i++, v);
+                if (v > max) {
+                    max = v;
+                }
+                cout << line << " :: " << v << '\n';
+            }
+            c++;
         }
         
         myfile.close();
-        return true;
+        return max;
     } else {
-        cout << "Unable to open file";
-        return false;
+        cout << "Unable to open file" << endl;
+        return -1;
     }
     
+}
+
+void saveDistancesToFile(string fn, vtkDoubleArray *surfaceScalarField) {
+    ofstream myfile;
+    myfile.open (fn);
+    myfile << ma << "\n" << mi << "\n";
+    for (int i = 0; i < surfaceScalarField->GetNumberOfTuples(); i++) {
+        myfile << surfaceScalarField->GetTuple(i)[0] << "\n";
+    }
+    myfile.close();
 }
 

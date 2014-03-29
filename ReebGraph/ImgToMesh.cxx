@@ -103,7 +103,7 @@ public:
 
 void ImgToMesh::init() {
     
-    fileName = "/Users/sjr/Pictures/gun/gun_0s.png";
+    fileName = "/Users/sjr/Pictures/gun/gun_10.png";
     
     reader = vtkSmartPointer<vtkPNGReader>::New();
     quantizer = vtkSmartPointer<vtkImageQuantizeRGBToIndex>::New();
@@ -137,10 +137,10 @@ bool ImgToMesh::loadFile() {
         mesh->DeepCopy(polyReader->GetOutput());
     } else {
         cout << "Load from image" << endl;
-        reader->SetFileName("/Users/sjr/Pictures/gun/gun_0s.png");
+        reader->SetFileName("/Users/sjr/Pictures/gun/gun_11.png");
         reader->Update();
         quantizer->SetInputConnection(reader->GetOutputPort());
-        quantizer->SetNumberOfColors(2);
+        quantizer->SetNumberOfColors(3);
         quantizer->Update();
         img2data->SetInputConnection(quantizer->GetOutputPort());
         img2data->SetLookupTable(quantizer->GetLookupTable());
@@ -150,27 +150,28 @@ bool ImgToMesh::loadFile() {
         img2data->SetError(0);
         img2data->DecimationOn();
         img2data->SetDecimationError(0.0);
-        img2data->SetSubImageSize(5);
+        img2data->SetSubImageSize(200);
         img2data->Update();
         mesh->DeepCopy(img2data->GetOutput());
-    }
-
-    bool culled = false;
-
-    while (!culled) {
-        displayMesh();
         
-        mesh->BuildLinks();
-        for (int i = 0; i < cellIds.size(); i++) {
-            mesh->DeleteCell(cellIds[i]);
-        }
-        mesh->RemoveDeletedCells();
-        if (cellIds.size() > 0) {
-            cellIds.clear();
-        } else {
-            culled = true;
+        bool culled = false;
+        
+        while (!culled) {
+            displayMesh();
+            
+            mesh->BuildLinks();
+            for (int i = 0; i < cellIds.size(); i++) {
+                mesh->DeleteCell(cellIds[i]);
+            }
+            mesh->RemoveDeletedCells();
+            if (cellIds.size() > 0) {
+                cellIds.clear();
+            } else {
+                culled = true;
+            }
         }
     }
+
     
     cout << "Cells :: " << mesh->GetNumberOfCells() << endl;
     cout << "Points :: " << mesh->GetNumberOfPoints() << endl;
@@ -202,7 +203,7 @@ bool ImgToMesh::loadFile() {
     writer->Update();
     writer->Write();
     
-    displayMesh();
+//    displayMesh();
     
     return true;
 }

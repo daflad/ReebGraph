@@ -108,7 +108,7 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     actor->SetMapper(mapper);
     actor->GetProperty()->SetRepresentationToWireframe();
     
-    renderer->AddActor(actor);
+    //renderer->AddActor(actor);
     renderer->AddActor(surfaceActor);
     
     // Actual display of the skeleton
