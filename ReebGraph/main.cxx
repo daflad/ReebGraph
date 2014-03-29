@@ -13,11 +13,13 @@
 
 vtkStandardNewMacro(AreaSimplificationMetric);
 
-double ma = 0;
-double mi = 250;
+double ma = 300;
+double mi = 0;
 
 double  loadDistancesFromFile(string fn, vtkDoubleArray *surfaceScalarField);
 void    saveDistancesToFile(string fn, vtkDoubleArray *surfaceScalarField);
+
+vector<double> avg;
 
 int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     ImgToMesh im;
@@ -49,66 +51,66 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     
     if (aMax == -1) {
         
-        vector<vector<double>> distLUT;
-        vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra =
-        vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();
-        dijkstra->SetInputData(surfaceMesh);
-        vector<double> avg;
-        for(vtkIdType i = 0; i < np; i++) {
-
-            vector<double> dist;
-            double avgDist = 0;
-            for(vtkIdType j = 0; j < np; j++) {
-                double d = 0;
-                if (j < distLUT.size() && i < distLUT[j].size()) {
-                    d = distLUT[j][i];
-                } else {
-
-                    dijkstra->SetStartVertex(i);
-                    dijkstra->SetEndVertex(j);
-                    dijkstra->Update();
-                    vtkIdList *l = dijkstra->GetIdList();
-
-                    for (int k = 1; k < l->GetNumberOfIds(); k++) {
-                        vtkIdType idA = l->GetId(k - 1);
-                        vtkIdType idB = l->GetId(k);
-                        double *pA = (double *) malloc(sizeof(double)*3);
-                        double *pB = (double *) malloc(sizeof(double)*3);
-                        surfaceMesh->GetPoint(idA, pA);
-                        surfaceMesh->GetPoint(idB, pB);
-                        // Find the squared distance between the points.
-                        double squaredDistance = vtkMath::Distance2BetweenPoints(pA, pB);
-
-                        // Take the square root to get the Euclidean distance between the points.
-                        d += sqrt(squaredDistance);
-                        free(pA);
-                        free(pB);
-                    }
-
-                }
-                if (d > ma) {
-                    ma = d;
-                }
-                if (d < mi) {
-                    mi = d;
-                }
-                avgDist += d;
-                dist.push_back(d);
-            }
-            distLUT.push_back(dist);
-            avgDist /= (double)np;
-            if (avgDist > aMax) {
-                aMax = avgDist;
-            }
-            if (avgDist < aMin) {
-                aMin = avgDist;
-            }
-            avg.push_back(avgDist);
-            cout << "Done :: " << i << "/" << np << " ~ " << avgDist << endl;
-        }
-        for (int i = 0; i < np; i++) {
-            surfaceScalarField->SetTuple1(i, avg[i]/aMax);
-        }
+//        vector<vector<double>> distLUT;
+//        vtkSmartPointer<vtkDijkstraGraphGeodesicPath> dijkstra =
+//        vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();
+//        dijkstra->SetInputData(surfaceMesh);
+//        
+//        for(vtkIdType i = 0; i < np; i++) {
+//
+//            vector<double> dist;
+//            double avgDist = 0;
+//            for(vtkIdType j = 0; j < np; j++) {
+//                double d = 0;
+//                if (j < distLUT.size() && i < distLUT[j].size()) {
+//                    d = distLUT[j][i];
+//                } else {
+//
+//                    dijkstra->SetStartVertex(i);
+//                    dijkstra->SetEndVertex(j);
+//                    dijkstra->Update();
+//                    vtkIdList *l = dijkstra->GetIdList();
+//
+//                    for (int k = 1; k < l->GetNumberOfIds(); k++) {
+//                        vtkIdType idA = l->GetId(k - 1);
+//                        vtkIdType idB = l->GetId(k);
+//                        double *pA = (double *) malloc(sizeof(double)*3);
+//                        double *pB = (double *) malloc(sizeof(double)*3);
+//                        surfaceMesh->GetPoint(idA, pA);
+//                        surfaceMesh->GetPoint(idB, pB);
+//                        // Find the squared distance between the points.
+//                        double squaredDistance = vtkMath::Distance2BetweenPoints(pA, pB);
+//
+//                        // Take the square root to get the Euclidean distance between the points.
+//                        d += sqrt(squaredDistance);
+//                        free(pA);
+//                        free(pB);
+//                    }
+//
+//                }
+//                if (d > ma) {
+//                    ma = d;
+//                }
+//                if (d < mi) {
+//                    mi = d;
+//                }
+//                avgDist += d;
+//                dist.push_back(d);
+//            }
+//            distLUT.push_back(dist);
+//            avgDist /= (double)np;
+//            if (avgDist > aMax) {
+//                aMax = avgDist;
+//            }
+//            if (avgDist < aMin) {
+//                aMin = avgDist;
+//            }
+//            avg.push_back(avgDist);
+//            cout << "Done :: " << i << "/" << np << " ~ " << avgDist << endl;
+//        }
+//        for (int i = 0; i < np; i++) {
+//            surfaceScalarField->SetTuple1(i, (avg[i] - aMin)/(aMax-aMin));
+//        }
         double mMax = 0;
         vector<double> sv;
         vtkDoubleArray *surfaceScalarField = vtkDoubleArray::New();
@@ -123,10 +125,6 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
             }
             
             sv.push_back(scalarValue);
-            // add a bit of noise for the split tree test
-            //if(vId == 2) scalarValue -= 10*scalarValue;
-            //scalarValue = ((scalarValue/131) + (avg[vId]/max))/2;
-            
             free(p);
         }
         for (int i = 0; i < sv.size(); i++) {
@@ -173,7 +171,7 @@ int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] ) {
     surfaceSimplification->SetSimplificationMetric(metric);
     
     surfaceSimplification->SetInputData(surfaceReebGraph);
-    surfaceSimplification->SetSimplificationThreshold(0.01);
+    surfaceSimplification->SetSimplificationThreshold(0.005);
     surfaceSimplification->Update();
     vtkReebGraph *simplifiedSurfaceReebGraph = surfaceSimplification->GetOutput();
     metric->Delete();

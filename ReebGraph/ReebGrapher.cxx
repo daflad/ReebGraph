@@ -84,9 +84,11 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     // Rendering setting
     vtkRenderer *renderer = vtkRenderer::New();
     
+    
     vtkRenderWindow *renderWindow1 = vtkRenderWindow::New();
     renderWindow1->AddRenderer(renderer);
     renderWindow1->SetSize(800, 800);
+    renderWindow1->SetWindowName("Reeb Graph");
     
     vtkRenderWindowInteractor *windowInteractor =
     vtkRenderWindowInteractor::New();
@@ -108,7 +110,7 @@ int ReebGrapher::DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skel
     actor->SetMapper(mapper);
     actor->GetProperty()->SetRepresentationToWireframe();
     
-    //renderer->AddActor(actor);
+//    renderer->AddActor(actor);
     renderer->AddActor(surfaceActor);
     
     // Actual display of the skeleton

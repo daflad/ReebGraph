@@ -45,11 +45,11 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
         free(pB);
     }
     
+    d /= (this->UpperBound - this->LowerBound);
+    
     cout << "Eval :: " << d << endl;
-    if (d == 0) {
-        d = 0.01;
-    }
-    return d;
+    
+    return 1 - d;
 
 //
 //

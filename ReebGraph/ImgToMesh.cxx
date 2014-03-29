@@ -137,7 +137,7 @@ bool ImgToMesh::loadFile() {
         mesh->DeepCopy(polyReader->GetOutput());
     } else {
         cout << "Load from image" << endl;
-        reader->SetFileName("/Users/sjr/Pictures/gun/gun_11.png");
+        reader->SetFileName("/Users/sjr/Pictures/gun/gun_12.png");
         reader->Update();
         quantizer->SetInputConnection(reader->GetOutputPort());
         quantizer->SetNumberOfColors(3);
@@ -150,7 +150,7 @@ bool ImgToMesh::loadFile() {
         img2data->SetError(0);
         img2data->DecimationOn();
         img2data->SetDecimationError(0.0);
-        img2data->SetSubImageSize(200);
+        img2data->SetSubImageSize(1500);
         img2data->Update();
         mesh->DeepCopy(img2data->GetOutput());
         
