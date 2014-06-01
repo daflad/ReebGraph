@@ -101,23 +101,16 @@ public:
     
 };
 
+
+// Init class vars
 void ImgToMesh::init() {
-    
-    fileName = "/Users/sjr/Pictures/gun/gun_10.png";
     
     reader = vtkSmartPointer<vtkPNGReader>::New();
     quantizer = vtkSmartPointer<vtkImageQuantizeRGBToIndex>::New();
-    
     img2data = vtkSmartPointer<vtkImageToPolyDataFilter>::New();
-    
-    
     triangleFilter = vtkSmartPointer<vtkTriangleFilter>::New();
-    
     connector = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
-    
-    
     cleaner = vtkSmartPointer<vtkCleanPolyData>::New();
-    
     mesh = vtkSmartPointer<vtkPolyData>::New();
     mesh->Allocate();
     
@@ -127,21 +120,26 @@ vtkStandardNewMacro(MouseInteractorStyle);
 
 bool ImgToMesh::loadFile() {
     
+    // Try to load from saved mesh
     vtkSmartPointer<vtkPolyDataReader> polyReader =
     vtkSmartPointer<vtkPolyDataReader>::New();
-    polyReader->SetFileName("gun.vtk");
+    polyReader->SetFileName(meshName.c_str());
     polyReader->Update();
     
-    if (reader->GetOutput())  {
-        cout << "Load from file" << endl;
+    // Decide wether or not to load from image or file
+    if (polyReader->GetOutput())  {
+//        cout << "Load from file" << endl;
         mesh->DeepCopy(polyReader->GetOutput());
     } else {
-        cout << "Load from image" << endl;
-        reader->SetFileName("/Users/sjr/Pictures/gun/gun_12.png");
+//        cout << "Load from image" << endl;
+        // Load image
+        reader->SetFileName("/Users/sjr/Pictures/gum/10_400.png");
         reader->Update();
+        // Quantise colour
         quantizer->SetInputConnection(reader->GetOutputPort());
         quantizer->SetNumberOfColors(3);
         quantizer->Update();
+        //Convert to polydata
         img2data->SetInputConnection(quantizer->GetOutputPort());
         img2data->SetLookupTable(quantizer->GetLookupTable());
         img2data->SetColorModeToLUT();
@@ -150,20 +148,31 @@ bool ImgToMesh::loadFile() {
         img2data->SetError(0);
         img2data->DecimationOn();
         img2data->SetDecimationError(0.0);
-        img2data->SetSubImageSize(1500);
+        img2data->SetSubImageSize(2000);
         img2data->Update();
+        
+        // Deep copy for security
+        vtkDoubleArray *ss = vtkDoubleArray::New();
+        ss->DeepCopy(img2data->GetOutput()->GetPointData()->GetScalars());
         mesh->DeepCopy(img2data->GetOutput());
         
+        // Control selection
         bool culled = false;
         
         while (!culled) {
+            
+            // Show current mesh
+            // Mous interactor at top has logic for selection
             displayMesh();
             
+            // Three part delete
             mesh->BuildLinks();
+            // Choose deleted cells
             for (int i = 0; i < cellIds.size(); i++) {
                 mesh->DeleteCell(cellIds[i]);
             }
             mesh->RemoveDeletedCells();
+            // clear list, if empty its time to move on
             if (cellIds.size() > 0) {
                 cellIds.clear();
             } else {
@@ -172,30 +181,32 @@ bool ImgToMesh::loadFile() {
         }
     }
 
-    
+    // PolyData Data
     cout << "Cells :: " << mesh->GetNumberOfCells() << endl;
     cout << "Points :: " << mesh->GetNumberOfPoints() << endl;
     
+    // Convert mesh to triangles
     triangleFilter->SetInputData( mesh );
     triangleFilter->PassLinesOff();
     triangleFilter->PassVertsOff();
     triangleFilter->Update();
     
+    // Check connectivity
     connector->SetInputConnection(triangleFilter->GetOutputPort());
     connector->SetExtractionModeToAllRegions();
     connector->ScalarConnectivityOn();
-    
     connector->Update();
     
+    // Clean unconnectd points
     cleaner->SetInputConnection( connector->GetOutputPort() );
     cleaner->Update();
     
+    // update mesh
     mesh->DeepCopy(cleaner->GetOutput());
     
+    // Save to disk
     vtkSmartPointer<vtkPolyDataMapper> d = vtkSmartPointer<vtkPolyDataMapper>::New();
-    
     d->SetInputData(mesh);
-    
     vtkSmartPointer<vtkPolyDataWriter> writer =
     vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetInputData(mesh);
@@ -203,15 +214,16 @@ bool ImgToMesh::loadFile() {
     writer->Update();
     writer->Write();
     
-//    displayMesh();
+    displayMesh();
     
     return true;
 }
 
+// display mesh to user
 void ImgToMesh::displayMesh() {
+    // Follow pipeline
     vtkRenderer *renderer1 = vtkRenderer::New();
-    
-    renderer1->SetBackground(0.3,0.3,0.3);
+    renderer1->SetBackground(1,1,1);
     
     vtkRenderWindow *renderWindow = vtkRenderWindow::New();
     renderWindow->AddRenderer(renderer1);
@@ -221,16 +233,19 @@ void ImgToMesh::displayMesh() {
     vtkRenderWindowInteractor::New();
     windowInteractor->SetRenderWindow(renderWindow);
     
+    // Map data
     vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(mesh);
     
+    // Add data to actor
     vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
     actor->GetProperty()->SetRepresentationToWireframe();
     actor->GetProperty()->SetColor(1, 1, 1);
     
+    // Add mouse interaction
     windowInteractor->Initialize();
     vtkSmartPointer<MouseInteractorStyle> style =
     vtkSmartPointer<MouseInteractorStyle>::New();
@@ -239,8 +254,10 @@ void ImgToMesh::displayMesh() {
     
     windowInteractor->SetInteractorStyle(style);
     
+    // add actor to window
     renderer1->AddActor(actor);
     renderer1->ResetCamera();
     
+    // Lets GO!
     windowInteractor->Start();
 }

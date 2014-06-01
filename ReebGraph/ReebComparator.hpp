@@ -1,29 +1,33 @@
 //
-//  ReebGrapher.h
+//  ReebComparator.h
 //  ReebGraph
 //
-//  Created by Stephen John Russell on 19/03/2014.
+//  Created by Stephen John Russell on 25/05/2014.
 //  Copyright (c) 2014 Stephen John Russell. All rights reserved.
 //
 
-#ifndef __ReebGraph__ReebGrapher__
-#define __ReebGraph__ReebGrapher__
+#ifndef __ReebGraph__ReebComparator__
+#define __ReebGraph__ReebComparator__
 
 #include <iostream>
-#include "GeodesicCalc.h"
-#include "AreaSimplificationMetric.h"
-#include <ctime>
+#include "vtkReebGraph.h"
 #include "vtkPolyData.h"
 #include "vtkTable.h"
 #include "vtkActor.h"
+#include "vtkAreaContourSpectrumFilter.h"
+#include "vtkCamera.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkIdList.h"
+#include "vtkLight.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataToReebGraphFilter.h"
 #include "vtkProperty.h"
+#include "vtkPNGWriter.h"
 #include "vtkReebGraph.h"
 #include "vtkReebGraphSurfaceSkeletonFilter.h"
 #include "vtkReebGraphSimplificationFilter.h"
@@ -35,31 +39,33 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkTable.h"
+#include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridToReebGraphFilter.h"
 #include "vtkVariantArray.h"
+#include "vtkVolumeContourSpectrumFilter.h"
+#include "vtkWindowToImageFilter.h"
+#include "vtkDijkstraGraphGeodesicPath.h"
 
-// Build and display reeb graph
-class ReebGrapher {
+using namespace std;
+
+// Compare two reeb graphs
+class ReebComparator {
     
 public:
     
-    double ma;
-    double mi;
+    int minDeg;
+    double minDist;
     
-    int DisplayReebGraph(vtkReebGraph *g);
+    void init(int, double);
     
-    int DisplaySurfaceSkeleton();
+    float compareReebGraphs(vtkReebGraph*, vtkReebGraph*, vtkPolyData*, vtkPolyData*);
     
-    void init(vtkPolyData *surfaceMesh);
+private:
     
-    void attachScalarField(int dimention);
     
-    void buildReebGraph();
     
-    vtkPolyData *mesh;
-    vtkReebGraphSimplificationFilter *surfaceSimplification;
-    vtkReebGraph *surfaceReebGraph;
-    vtkReebGraph *simplifiedSurfaceReebGraph;
-    vtkTable *skeleton;
 };
 
-#endif /* defined(__ReebGraph__ReebGrapher__) */
+#endif /* defined(__ReebGraph__ReebComparator__) */
